@@ -81,8 +81,8 @@ class _UsernamePageState extends State<UsernamePage> {
 
     _firestore.collection('Users').doc(user.user!.uid).set({
       'uid': user.user!.uid,
-      'email': userCredential.
-      'username': username,
+      'email': user.user!.email,
+      'username': userNameController.text,
       'color': getRandomColor(),
       'contacts': [],
       'chat': [],
