@@ -12,7 +12,7 @@ class Chatservice {
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
               final user = doc.data();
-              return user;
+              return user; 
             }).toList());
   }
 
