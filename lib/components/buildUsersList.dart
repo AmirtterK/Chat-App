@@ -37,9 +37,6 @@ class _BuildUserslistState extends State<BuildUserslist> {
             color: Colors.white,
           );
         }
-
-        userData = snapshot.data!.firstWhere(
-            (user) => user['uid'] == FirebaseAuth.instance.currentUser!.uid);
         if (widget.query == null) {
           if (currentRoute == 'Home') {
             usersList = snapshot.data!
@@ -64,9 +61,9 @@ class _BuildUserslistState extends State<BuildUserslist> {
           } else {
             usersList = snapshot.data!
                 .where((userdata) =>
-                    userdata['email'] != user.email &&
-                    ((userData!['contacts'] as List)
-                        .any((uid) => uid == userdata['uid'])))
+
+                    (userData!['contacts'] as List)
+                        .any((uid) => uid == userdata['uid']))
                 .map<Widget>(
                   (userdata) => UserTile(
                     user: userdata,

@@ -40,12 +40,11 @@ Future<bool> isContact(String currentUserUid, String contactUid) async {
       .doc(currentUserUid)
       .get();
 
-  if (userDoc.exists) {
     final data = userDoc.data();
     if (data != null && data['contacts'] != null) {
       List<dynamic> contacts = data['contacts'];
       return contacts.contains(contactUid);
     }
-  }
+  
   return false;
 }

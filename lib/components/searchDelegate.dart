@@ -17,7 +17,7 @@ class SSearchDelegate extends SearchDelegate {
     return IconButton(
         onPressed: () => close(context, null), icon: Icon(Icons.arrow_back));
   }
- 
+
   @override
   Widget buildResults(BuildContext context) {
     return BuildUserslist(query: query);

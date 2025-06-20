@@ -1,11 +1,13 @@
 import 'package:chat_app/components/message_field.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 
 class Builduserinput extends StatelessWidget {
   final TextEditingController messageController;
   final FocusNode typeFocus;
   final Function()? sendMessage;
-  const Builduserinput(
+  bool _emojiShowing = false;
+  Builduserinput(
       {super.key,
       required this.messageController,
       required this.sendMessage,
@@ -13,7 +15,7 @@ class Builduserinput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding( 
+    return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
         horizontal: 20,

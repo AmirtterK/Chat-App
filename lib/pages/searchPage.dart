@@ -11,10 +11,8 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         leading: null,
-        
         title: Center(child: SearchBar()),
       ),
     );

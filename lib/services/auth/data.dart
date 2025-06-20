@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:chat_app/pages/settingsPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 bool showLogin = true;
 bool passwordNotMatched = false;
@@ -35,11 +33,4 @@ Future<void> fetchUserData() async {
   }
 }
 
-List<MaterialPageRoute> Routes = [
-
- 
-  MaterialPageRoute(
-    builder: (context) => SettingsPage(),
-  )
-];
 

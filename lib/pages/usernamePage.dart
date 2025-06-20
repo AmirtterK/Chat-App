@@ -1,8 +1,11 @@
 import 'package:chat_app/components/inputField.dart';
+import 'package:chat_app/components/signInButton.dart';
 import 'package:chat_app/services/auth/data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
 
 class UsernamePage extends StatefulWidget {
   const UsernamePage({super.key});
@@ -14,92 +17,108 @@ class UsernamePage extends StatefulWidget {
 class _UsernamePageState extends State<UsernamePage> {
   TextEditingController userNameController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  bool isAvailable = true;
+  bool processingCredentials = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          InputField(
-            controller: userNameController,
-            hintText: 'Username',
-            obsecure: false,
-          )
-        ],
+      // resizeToAvoidBottomInset: false,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Column(
+            children: [
+              SizedBox(height: 140),
+              Icon(
+                Icons.person,
+                size: 60,
+              ),
+              SizedBox(height: 60),
+              InputField(
+                controller: userNameController,
+                hintText: 'Username',
+                obsecure: false,
+                onChanged: isUsernameAvailable,
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: !isAvailable && userNameController.text.isNotEmpty
+                    ? Text(
+                        'that username already exists!',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      )
+                    : Text(''),
+              ),
+              Spacer(),
+              processingCredentials
+                  ? Center(
+                      child: SpinKitPulse(
+                        color: Colors.white,
+                      ),
+                    )
+                  : Opacity(
+                      opacity: isAvailable && userNameController.text.isNotEmpty
+                          ? 1
+                          : 0.3,
+                      child: SignInButton(
+                        onTap: isAvailable && userNameController.text.isNotEmpty
+                            ? saveUser
+                            : null,
+                        showLogin: true,
+                        reset: false,
+                      ),
+                    ),
+              SizedBox(height: 80),
+            ],
+          ),
+        ),
       ),
     );
   }
-  
-  Future<String?> pickUserName(BuildContext context) async {
-    TextEditingController usernameController = TextEditingController();
-    bool confirm = false;
 
-    return showDialog<String?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Enter Username'),
-              content: TextField(
-                onChanged: (value) async {
-                  bool isAvailable = await isUsernameAvailable(value.trim());
-                  setState(() {
-                    confirm = (value.trim().isNotEmpty && isAvailable);
-                  });
-                },
-                controller: usernameController,
-                decoration: InputDecoration(hintText: 'Username'),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Cancel'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                ElevatedButton(
-                  onPressed: confirm
-                      ? () {
-                          Navigator.of(context).pop(usernameController.text);
-                        }
-                      : null,
-                  child: Text('Finish'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-  Future<void> saveUser(UserCredential user) async {
-    String? username = await pickUserName(context);
-    if (username == null) {
-      FirebaseAuth.instance.currentUser!.delete();
-      return;
-    }
-
-    _firestore.collection('Users').doc(user.user!.uid).set({
-      'uid': user.user!.uid,
-      'email': user.user!.email,
+  Future<void> saveUser() async {
+    setState(() {
+      processingCredentials = true;
+    });
+    await _firestore
+        .collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .set({
+      'uid': FirebaseAuth.instance.currentUser!.uid,
+      'email': FirebaseAuth.instance.currentUser!.email,
       'username': userNameController.text,
       'color': getRandomColor(),
       'contacts': [],
       'chat': [],
-    }).then((_) => setState(() {
-          showLogin = true;
-        }));
+    });
+    final doc = await _firestore
+        .collection('Users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    if (doc.exists) {
+      userData = doc.data()!;
+    }
+    if (mounted) {
+      context.replaceNamed('Home');
+    }
 
     print('------------------->   saved');
   }
-  Future<bool> isUsernameAvailable(String username) async {
+
+  Future<void> isUsernameAvailable(String username) async {
     final result = await FirebaseFirestore.instance
         .collection('Users')
         .where('username', isEqualTo: username.trim())
         .limit(1)
         .get();
-
-    return result.docs.isEmpty;
+    setState(() {
+      isAvailable = result.docs.isEmpty && username.trim().isNotEmpty;
+    });
   }
-
 }

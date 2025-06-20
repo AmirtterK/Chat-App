@@ -20,22 +20,14 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-
-
-  
+  bool processingCredentials = false;
 
 // sign and create user then set username
   Future<void> _onSignIn() async {
     FocusScope.of(context).unfocus();
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => Center(
-        child: SpinKitPulse(
-          color: Colors.white,
-        ),
-      ),
-    );
+    setState(() {
+      processingCredentials = true;
+    });
     try {
       errorCode = '';
       passwordNotMatched = false;
@@ -44,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
             email: emailController.text, password: passwordController.text);
       } else {
         if (passwordController.text == confirmPasswordController.text) {
-          userCredential = await FirebaseAuth.instance
+          userCredential = await FirebaseAuth.instance 
               .createUserWithEmailAndPassword(
                   email: emailController.text,
                   password: passwordController.text);
@@ -54,20 +46,16 @@ class _LoginPageState extends State<LoginPage> {
           });
         }
       }
-      if (mounted) {
-        Navigator.pop(context);
-      }
     } on FirebaseAuthException catch (e) {
       setState(() {
+        processingCredentials = false;
         if (e.code == 'invalid-credential') {
           errorCode = 'Wrong email or password';
         } else {
           errorCode = e.code.replaceAll('-', ' ');
         }
       });
-      if (mounted) {
-        Navigator.pop(context);
-      }
+
       print(e.code);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -260,11 +248,18 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           height: 25,
                         ),
-                        SignInButton(
-                          reset: forgotPassword,
-                          showLogin: showLogin,
-                          onTap: forgotPassword ? resetPassword : _onSignIn,
-                        ),
+                        processingCredentials
+                            ? Center(
+                                child: SpinKitPulse(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : SignInButton(
+                                reset: forgotPassword,
+                                showLogin: showLogin,
+                                onTap:
+                                    forgotPassword ? resetPassword : _onSignIn,
+                              ),
                       ],
                     ),
                   ),

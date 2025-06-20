@@ -1,4 +1,5 @@
 import 'package:chat_app/components/userAvatar.dart';
+import 'package:chat_app/services/auth/data.dart';
 import 'package:chat_app/services/chat/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +23,11 @@ class UserTile extends StatelessWidget {
           SlidableAction(
             backgroundColor: Colors.red,
             label: 'Delete',
-            onPressed: (context) =>
-                removeContact(FirebaseAuth.instance.currentUser!.uid, user['uid']),
+            onPressed: (context) => currentRoute == 'Home'
+                ? removeChat(
+                    FirebaseAuth.instance.currentUser!.uid, user['uid'])
+                : removeContact(
+                    FirebaseAuth.instance.currentUser!.uid, user['uid']),
             icon: Icons.delete,
           ),
         ],
