@@ -13,6 +13,7 @@ File? avatarImage;
 Map<String, dynamic>? userData;
 late UserCredential userCredential;
 String currentRoute = 'Home';
+late final String? FcmToken;
 String getRandomColor() {
   final random = Random();
   int r = random.nextInt(256);

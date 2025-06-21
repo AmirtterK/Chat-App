@@ -1,4 +1,5 @@
 import 'package:chat_app/components/userAvatar.dart';
+import 'package:chat_app/pages/authPage.dart';
 import 'package:chat_app/services/auth/data.dart';
 import 'package:chat_app/services/theme/themeprovider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,9 @@ class HomeDrawer extends StatefulWidget {
 class _HomeDrawerState extends State<HomeDrawer> {
   void signOut() {
     FirebaseAuth.instance.signOut();
+    if (context.mounted) {
+      context.go('/Auth'); 
+    }
   }
 
   @override

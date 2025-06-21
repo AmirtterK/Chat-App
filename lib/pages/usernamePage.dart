@@ -99,6 +99,7 @@ class _UsernamePageState extends State<UsernamePage> {
       'contacts': [],
       'chat': [],
       'block': [],
+      'fcm':FcmToken
     });
     final doc = await _firestore
         .collection('Users')
