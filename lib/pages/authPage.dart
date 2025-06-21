@@ -31,10 +31,12 @@ class AuthPage extends StatelessWidget {
           future: _userExists(user.uid),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return const Scaffold(
+              return Scaffold(
                 body: Center(
                   child: SpinKitPulse(
-                    color: Colors.white,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black
+                        : Colors.white,
                   ),
                 ),
               );

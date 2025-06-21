@@ -1,6 +1,8 @@
+import 'package:chat_app/components/blockBloc.dart';
 import 'package:chat_app/components/buildUserInput.dart';
 import 'package:chat_app/components/chatBubble.dart';
 import 'package:chat_app/components/userAvatar.dart';
+import 'package:chat_app/services/auth/data.dart';
 import 'package:chat_app/services/chat/chatService.dart';
 import 'package:chat_app/services/chat/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,9 +30,11 @@ class _ChatPageState extends State<ChatPage> {
   final FocusNode _typeFocus = FocusNode();
   final ScrollController _scorllController = ScrollController();
   bool? userSentLast;
+  late Future<List<bool>> _statusFuture;
   @override
   void initState() {
     super.initState();
+    _statusFuture = loadStatus();
     _typeFocus.addListener(() {
       if (_typeFocus.hasFocus) {
         Future.delayed(
@@ -39,6 +43,13 @@ class _ChatPageState extends State<ChatPage> {
         );
       }
     });
+  }
+
+  Future<List<bool>> loadStatus() {
+    return Future.wait([
+      isBlocked(userData!['uid'], widget.user['uid']),
+      BlockedBy(userData!['uid'], widget.user['uid']),
+    ]);
   }
 
   @override
@@ -117,10 +128,36 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: _buildMessageList(),
           ),
-          Builduserinput(
-            messageController: _message_controller,
-            typeFocus: _typeFocus,
-            sendMessage: sendMessage,
+          FutureBuilder<List<bool>>(
+            future: _statusFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox.shrink(); // or CircularProgressIndicator()
+              }
+
+              if (snapshot.hasError || !snapshot.hasData) {
+                return Center(
+                  child: Icon(Icons.error),
+                );
+              }
+
+              final results = snapshot.data!;
+              if (results[0]) {
+                return Blockbloc(
+                  username: widget.user['username'],
+                );
+              } else if (results[1]) {
+                return Blockbloc(
+                  username: widget.user['username'],
+                );
+              } else {
+                return Builduserinput(
+                  messageController: _message_controller,
+                  typeFocus: _typeFocus,
+                  sendMessage: sendMessage,
+                );
+              }
+            },
           ),
         ],
       ),
@@ -134,13 +171,21 @@ class _ChatPageState extends State<ChatPage> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
-            child: SpinKitPulse(color: Colors.white),
+            child: SpinKitPulse(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.black
+                  : Colors.white,
+            ),
           );
         }
 
         if (snapshot.hasError) return Text('Error');
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return SpinKitPulse(color: Colors.white);
+          return SpinKitPulse(
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black
+                : Colors.white,
+          );
         }
 
         WidgetsBinding.instance
@@ -307,6 +352,8 @@ class _ChatPageState extends State<ChatPage> {
     _typeFocus.unfocus();
     bool userIsContact = await isContact(
         FirebaseAuth.instance.currentUser!.uid, widget.user['uid']);
+    bool isUserBlocked = await isBlocked(
+        FirebaseAuth.instance.currentUser!.uid, widget.user['uid']);
     if (mounted && context.mounted) {
       showPopover(
         arrowWidth: 0,
@@ -329,7 +376,7 @@ class _ChatPageState extends State<ChatPage> {
                             widget.user['uid'])
                         : await addContact(
                             FirebaseAuth.instance.currentUser!.uid,
-                            widget.user['uid'])
+                            widget.user['uid']),
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -343,6 +390,37 @@ class _ChatPageState extends State<ChatPage> {
                           width: 20,
                         ),
                         Text(userIsContact ? 'Remove Contact' : 'Add Contact'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Material(
+                color: Theme.of(context).colorScheme.surface,
+                child: InkWell(
+                  onTap: () async => {
+                    Navigator.of(context).pop(),
+                    isUserBlocked
+                        ? await Unblock(FirebaseAuth.instance.currentUser!.uid,
+                            widget.user['uid'])
+                        : await Block(FirebaseAuth.instance.currentUser!.uid,
+                            widget.user['uid']),
+                    setState(() {
+                      _statusFuture = loadStatus();
+                    })
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.block_flipped,
+                          size: 20,
+                        ),
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Text(isUserBlocked ? 'Unblock' : 'Block'),
                       ],
                     ),
                   ),

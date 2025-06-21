@@ -1,4 +1,5 @@
 import 'package:chat_app/pages/authPage.dart';
+import 'package:chat_app/pages/blockPage.dart';
 import 'package:chat_app/pages/contactsPage.dart';
 import 'package:chat_app/pages/homePage.dart';
 import 'package:chat_app/pages/settingsPage.dart';
@@ -108,6 +109,33 @@ final _router = GoRouter(
           reverseTransitionDuration: const Duration(milliseconds: 300),
           key: state.pageKey,
           child: const SettingsPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(
+            opacity: fadeInTransition.animate(animation),
+            child: AnimatedBuilder(
+              animation: animation,
+              builder: (BuildContext context, Widget? child) {
+                return Transform.translate(
+                  offset: slideInTransition2.evaluate(animation),
+                  child: child,
+                );
+              },
+              child: child,
+            ),
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      name: 'Block',
+      path: '/Block',
+      builder: (context, state) => const BlockPage(),
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 300),
+          key: state.pageKey,
+          child: const BlockPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               FadeTransition(
             opacity: fadeInTransition.animate(animation),

@@ -20,7 +20,10 @@ class SSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return BuildUserslist(query: query);
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: BuildUserslist(query: query),
+    );
   }
 
   @override

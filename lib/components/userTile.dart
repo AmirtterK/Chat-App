@@ -1,21 +1,21 @@
 import 'package:chat_app/components/userAvatar.dart';
-import 'package:chat_app/services/auth/data.dart';
-import 'package:chat_app/services/chat/user.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class UserTile extends StatelessWidget {
   final Map<String, dynamic> user;
   final void Function()? onTap;
+  final void Function()? onDelete;
   const UserTile({
     super.key,
     this.onTap,
+    this.onDelete,
     required this.user,
   });
   @override
   Widget build(BuildContext context) {
     return Slidable(
+      enabled: onDelete!=null,
       endActionPane: ActionPane(
         extentRatio: 0.25,
         motion: BehindMotion(),
@@ -23,11 +23,7 @@ class UserTile extends StatelessWidget {
           SlidableAction(
             backgroundColor: Colors.red,
             label: 'Delete',
-            onPressed: (context) => currentRoute == 'Home'
-                ? removeChat(
-                    FirebaseAuth.instance.currentUser!.uid, user['uid'])
-                : removeContact(
-                    FirebaseAuth.instance.currentUser!.uid, user['uid']),
+            onPressed: (context) => onDelete?.call(),
             icon: Icons.delete,
           ),
         ],

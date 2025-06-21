@@ -77,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder: (context) => Center(
         child: SpinKitPulse(
-          color: Colors.white,
+            color: Theme.of(context).brightness==Brightness.light?Colors.black:Colors.white,
         ),
       ),
     );
@@ -251,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                         processingCredentials
                             ? Center(
                                 child: SpinKitPulse(
-                                  color: Colors.white,
+            color: Theme.of(context).brightness==Brightness.light?Colors.black:Colors.white,
                                 ),
                               )
                             : SignInButton(
@@ -321,6 +321,7 @@ class _LoginPageState extends State<LoginPage> {
                           confirmPasswordController.clear();
                           forgotPassword = false;
                           showLogin = !showLogin;
+                          errorCode='';
                         }),
                         child: Text(
                           showLogin ? 'Register now' : 'Login',

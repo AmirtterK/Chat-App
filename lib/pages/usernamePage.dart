@@ -59,7 +59,9 @@ class _UsernamePageState extends State<UsernamePage> {
               processingCredentials
                   ? Center(
                       child: SpinKitPulse(
-                        color: Colors.white,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black
+                            : Colors.white,
                       ),
                     )
                   : Opacity(
@@ -70,7 +72,7 @@ class _UsernamePageState extends State<UsernamePage> {
                         onTap: isAvailable && userNameController.text.isNotEmpty
                             ? saveUser
                             : null,
-                        showLogin: true,
+                        showLogin: false,
                         reset: false,
                       ),
                     ),
@@ -96,6 +98,7 @@ class _UsernamePageState extends State<UsernamePage> {
       'color': getRandomColor(),
       'contacts': [],
       'chat': [],
+      'block': [],
     });
     final doc = await _firestore
         .collection('Users')
