@@ -14,6 +14,11 @@ class AuthPage extends StatelessWidget {
     final doc = await firestore.collection('Users').doc(uid).get();
     if (doc.exists) {
       userData = doc.data()!;
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(uid)
+          .set({'fcmToken': FcmToken}, SetOptions(merge: true));
+
       return true;
     }
     return false;

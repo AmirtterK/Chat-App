@@ -6,20 +6,14 @@ import 'package:chat_app/pages/settingsPage.dart';
 import 'package:chat_app/services/animations/animations.dart';
 import 'package:chat_app/services/chat/firebaseApi.dart';
 import 'package:chat_app/services/theme/themeprovider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'services/auth/firebase_options.dart';
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print('✅ BG Notification: ${message.notification?.title}');
-  print('✅ BG Data: ${message.data}');
-}
+
 void main() async { 
   WidgetsFlutterBinding.ensureInitialized();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Firebaseapi().initNotifications();
   runApp(

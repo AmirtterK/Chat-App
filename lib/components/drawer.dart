@@ -1,5 +1,4 @@
 import 'package:chat_app/components/userAvatar.dart';
-import 'package:chat_app/pages/authPage.dart';
 import 'package:chat_app/services/auth/data.dart';
 import 'package:chat_app/services/theme/themeprovider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
