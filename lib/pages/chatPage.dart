@@ -144,6 +144,12 @@ class _ChatPageState extends State<ChatPage> {
               final results = snapshot.data!;
               if (results[0]) {
                 return Blockbloc(
+                  onTap: () async => {
+                    await Unblock(userData!['uid'], widget.user['uid']),
+                    setState(() {
+                      _statusFuture = loadStatus();
+                    })
+                  },
                   username: widget.user['username'],
                 );
               } else if (results[1]) {
@@ -350,11 +356,12 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> contactOptions(BuildContext contactContext) async {
     _typeFocus.unfocus();
+    bool blockedBy = await BlockedBy(userData!['uid'], widget.user['uid']);
     bool userIsContact = await isContact(
-        FirebaseAuth.instance.currentUser!.uid, widget.user['uid']);
+        userData!['uid'], widget.user['uid']);
     bool isUserBlocked = await isBlocked(
-        FirebaseAuth.instance.currentUser!.uid, widget.user['uid']);
-    if (mounted && context.mounted) {
+        userData!['uid'], widget.user['uid']);
+    if (mounted && context.mounted && !blockedBy) {
       showPopover(
         arrowWidth: 0,
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -369,14 +376,22 @@ class _ChatPageState extends State<ChatPage> {
                 color: Theme.of(context).colorScheme.surface,
                 child: InkWell(
                   onTap: () async => {
-                    Navigator.of(context).pop(),
-                    userIsContact
-                        ? await removeContact(
-                            FirebaseAuth.instance.currentUser!.uid,
-                            widget.user['uid'])
-                        : await addContact(
-                            FirebaseAuth.instance.currentUser!.uid,
-                            widget.user['uid']),
+                    if (isUserBlocked)
+                      {
+                        await showUnblockDialog(context),
+                        if (context.mounted) Navigator.of(context).pop(),
+                      }
+                    else 
+                      {
+                        Navigator.of(context).pop(),
+                        userIsContact
+                            ? await removeContact(
+                                FirebaseAuth.instance.currentUser!.uid,
+                                widget.user['uid'])
+                            : await addContact(
+                                FirebaseAuth.instance.currentUser!.uid,
+                                widget.user['uid']),
+                      }
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -430,6 +445,63 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ),
       );
+    }
+  }
+
+  Future<void> showUnblockDialog(BuildContext context) async {
+    final result = await showAdaptiveDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        actionsPadding: EdgeInsets.zero,
+        title: Center(child: Text('Unblock User',style: TextStyle(fontSize: 22),)),
+        content: Text('Do you want to unblock ${widget.user['username']}?',textAlign: TextAlign.center,),
+        actions: [
+          Material(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+            color: Theme.of(context).colorScheme.secondaryFixed,
+            child: InkWell(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              onTap: () => Navigator.pop(context, true),
+              child: Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    'Unblock',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      await Future.wait([
+        Unblock(userData!['uid'], widget.user['uid']),
+        addContact(userData!['uid'], widget.user['uid']),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _statusFuture = loadStatus();
+        });
+      }
     }
   }
 }

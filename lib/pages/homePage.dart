@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => showSearch(
               context: context,
               delegate: SSearchDelegate(),
-            ),
+            ).then((_) => setState(() {})),
             icon: Icon(Icons.search),
           ),
         ],

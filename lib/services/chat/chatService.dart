@@ -35,6 +35,7 @@ class Chatservice {
         .collection('messages')
         .add(newMessage.toMap());
     await addChat(FirebaseAuth.instance.currentUser!.uid, recieverId);
+    
   }
 
   Future<void> deleteMessage(String recieverId, Timestamp timestamp) async {

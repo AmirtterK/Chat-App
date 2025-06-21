@@ -36,7 +36,9 @@ class _BuildUserslistState extends State<BuildUserslist> {
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SpinKitPulse(
-            color: Theme.of(context).brightness==Brightness.light?Colors.black:Colors.white,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.black
+                : Colors.white,
           );
         }
         if (widget.block != null) {
@@ -61,7 +63,11 @@ class _BuildUserslistState extends State<BuildUserslist> {
               .where((userdata) =>
                   userdata['username'].toString().trim().toLowerCase() ==
                       widget.query.toString().trim().toLowerCase() &&
-                  userdata['uid'] != user.uid)
+                  userdata['uid'] != user.uid &&
+                  !((userdata['block'] as List)
+                      .any((uid) => uid == userData!['uid'])) &&
+                  !((userData!['block'] as List)
+                      .any((uid) => uid == userdata['uid'])))
               .map<Widget>((userdata) => UserTile(
                   user: userdata,
                   onTap: () => {
@@ -102,8 +108,11 @@ class _BuildUserslistState extends State<BuildUserslist> {
                 .toList();
           } else {
             usersList = snapshot.data!
-                .where((userdata) => (userData!['contacts'] as List)
-                    .any((uid) => uid == userdata['uid']))
+                .where((userdata) =>
+                    (userData!['contacts'] as List)
+                        .any((uid) => uid == userdata['uid']) &&
+                    !((userData!['block'] as List)
+                        .any((uid) => uid == userdata['uid'])))
                 .map<Widget>(
                   (userdata) => UserTile(
                     onDelete: () async {
