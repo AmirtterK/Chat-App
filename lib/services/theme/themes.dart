@@ -6,7 +6,7 @@ ThemeData lightMode = ThemeData(
   colorScheme: ColorScheme.light(
     secondary:  Color.fromARGB(255, 0, 210, 190),
     onSecondary: Color(0xFFF2F4F5),
-    secondaryFixed: Colors.grey.shade300,
+    secondaryFixed: Colors.grey.shade300, 
     onSecondaryFixed: Colors.grey.shade300,
     onSecondaryFixedVariant: Colors.grey.shade300,
     tertiary: Colors.grey.shade300,

@@ -22,7 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   final confirmPasswordController = TextEditingController();
   bool processingCredentials = false;
 
-// sign and create user then set username
   Future<void> _onSignIn() async {
     FocusScope.of(context).unfocus();
     setState(() {

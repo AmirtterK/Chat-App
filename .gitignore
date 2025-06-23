@@ -45,7 +45,4 @@ app.*.map.json
 /android/app/release
 
 
-# Node
-node_modules/
-serviceAccountKey.json
 .env

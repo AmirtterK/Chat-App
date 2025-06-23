@@ -2,7 +2,6 @@ import 'package:chat_app/components/blockBloc.dart';
 import 'package:chat_app/components/buildUserInput.dart';
 import 'package:chat_app/components/chatBubble.dart';
 import 'package:chat_app/components/userAvatar.dart';
-import 'package:chat_app/services/auth/data.dart';
 import 'package:chat_app/services/chat/chatService.dart';
 import 'package:chat_app/services/chat/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,6 +30,9 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scorllController = ScrollController();
   bool? userSentLast;
   late Future<List<bool>> _statusFuture;
+  late List<bool> result;
+  String currentUID = FirebaseAuth.instance.currentUser!.uid;
+
   @override
   void initState() {
     super.initState();
@@ -47,8 +49,8 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<List<bool>> loadStatus() {
     return Future.wait([
-      isBlocked(userData!['uid'], widget.user['uid']),
-      BlockedBy(userData!['uid'], widget.user['uid']),
+      isBlocked(currentUID, widget.user['uid']),
+      BlockedBy(currentUID, widget.user['uid']),
     ]);
   }
 
@@ -78,7 +80,7 @@ class _ChatPageState extends State<ChatPage> {
   void sendMessage() {
     if (_message_controller.text.isNotEmpty) {
       _chatservice.sendMessage(
-          widget.user['uid'], _message_controller.text.trimRight());
+          widget.user, _message_controller.text.trimRight());
       _message_controller.clear();
       scrollDown();
     }
@@ -88,7 +90,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 30,
+      titleSpacing: 0,
         surfaceTintColor: const Color(0x00000000),
         title: Row(
           children: [
@@ -123,55 +125,58 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _buildMessageList(),
-          ),
-          FutureBuilder<List<bool>>(
-            future: _statusFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return SizedBox.shrink(); // or CircularProgressIndicator()
-              }
+      body: FutureBuilder(
+          future: _statusFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SpinKitPulse(
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.black
+                    : Colors.white,
+              );
+            }
 
-              if (snapshot.hasError || !snapshot.hasData) {
-                return Center(
-                  child: Icon(Icons.error),
-                );
-              }
+            if (snapshot.hasError || !snapshot.hasData) {
+              return Center(
+                child: Icon(Icons.error),
+              );
+            }
+            result = snapshot.data!;
 
-              final results = snapshot.data!;
-              if (results[0]) {
-                return Blockbloc(
-                  onTap: () async => {
-                    await Unblock(userData!['uid'], widget.user['uid']),
-                    setState(() {
-                      _statusFuture = loadStatus();
-                    })
-                  },
-                  username: widget.user['username'],
-                );
-              } else if (results[1]) {
-                return Blockbloc(
-                  username: widget.user['username'],
-                );
-              } else {
-                return Builduserinput(
-                  messageController: _message_controller,
-                  typeFocus: _typeFocus,
-                  sendMessage: sendMessage,
-                );
-              }
-            },
-          ),
-        ],
-      ),
+            return Column(
+              children: [
+                Expanded(
+                  child: _buildMessageList(),
+                ),
+                if (result[0]) ...{
+                  Blockbloc(
+                    onTap: () async => {
+                      await Unblock(currentUID, widget.user['uid']),
+                      setState(() {
+                        _statusFuture = loadStatus();
+                      })
+                    },
+                    username: widget.user['username'],
+                  )
+                } else if (result[1]) ...{
+                  Blockbloc(
+                    username: widget.user['username'],
+                  )
+                } else ...{
+                  Builduserinput(
+                    messageController: _message_controller,
+                    typeFocus: _typeFocus,
+                    sendMessage: sendMessage,
+                  )
+                }
+              ],
+            );
+          }),
     );
   }
 
   Widget _buildMessageList() {
-    String senderId = FirebaseAuth.instance.currentUser!.uid;
+    String senderId = currentUID;
     return StreamBuilder(
       stream: _chatservice.getMessage(widget.user['uid'], senderId),
       builder: (context, snapshot) {
@@ -356,11 +361,9 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> contactOptions(BuildContext contactContext) async {
     _typeFocus.unfocus();
-    bool blockedBy = await BlockedBy(userData!['uid'], widget.user['uid']);
-    bool userIsContact = await isContact(
-        userData!['uid'], widget.user['uid']);
-    bool isUserBlocked = await isBlocked(
-        userData!['uid'], widget.user['uid']);
+    bool blockedBy = await BlockedBy(currentUID, widget.user['uid']);
+    bool userIsContact = await isContact(currentUID, widget.user['uid']);
+    bool isUserBlocked = result[0];
     if (mounted && context.mounted && !blockedBy) {
       showPopover(
         arrowWidth: 0,
@@ -381,16 +384,13 @@ class _ChatPageState extends State<ChatPage> {
                         await showUnblockDialog(context),
                         if (context.mounted) Navigator.of(context).pop(),
                       }
-                    else 
+                    else
                       {
                         Navigator.of(context).pop(),
                         userIsContact
                             ? await removeContact(
-                                FirebaseAuth.instance.currentUser!.uid,
-                                widget.user['uid'])
-                            : await addContact(
-                                FirebaseAuth.instance.currentUser!.uid,
-                                widget.user['uid']),
+                                currentUID, widget.user['uid'])
+                            : await addContact(currentUID, widget.user['uid']),
                       }
                   },
                   child: Container(
@@ -416,10 +416,8 @@ class _ChatPageState extends State<ChatPage> {
                   onTap: () async => {
                     Navigator.of(context).pop(),
                     isUserBlocked
-                        ? await Unblock(FirebaseAuth.instance.currentUser!.uid,
-                            widget.user['uid'])
-                        : await Block(FirebaseAuth.instance.currentUser!.uid,
-                            widget.user['uid']),
+                        ? await Unblock(currentUID, widget.user['uid'])
+                        : await Block(currentUID, widget.user['uid']),
                     setState(() {
                       _statusFuture = loadStatus();
                     })
@@ -449,15 +447,22 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> showUnblockDialog(BuildContext context) async {
-    final result = await showAdaptiveDialog<bool>(
+    final dialogResult = await showAdaptiveDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         actionsPadding: EdgeInsets.zero,
-        title: Center(child: Text('Unblock User',style: TextStyle(fontSize: 22),)),
-        content: Text('Do you want to unblock ${widget.user['username']}?',textAlign: TextAlign.center,),
+        title: Center(
+            child: Text(
+          'Unblock User',
+          style: TextStyle(fontSize: 22),
+        )),
+        content: Text(
+          'Do you want to unblock ${widget.user['username']}?',
+          textAlign: TextAlign.center,
+        ),
         actions: [
           Material(
             borderRadius: BorderRadius.only(
@@ -491,10 +496,10 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
-    if (result == true) {
+    if (dialogResult == true) {
       await Future.wait([
-        Unblock(userData!['uid'], widget.user['uid']),
-        addContact(userData!['uid'], widget.user['uid']),
+        Unblock(currentUID, widget.user['uid']),
+        addContact(currentUID, widget.user['uid']),
       ]);
 
       if (mounted) {

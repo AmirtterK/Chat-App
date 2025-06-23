@@ -22,7 +22,6 @@ class _UsernamePageState extends State<UsernamePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -94,12 +93,12 @@ class _UsernamePageState extends State<UsernamePage> {
         .set({
       'uid': FirebaseAuth.instance.currentUser!.uid,
       'email': FirebaseAuth.instance.currentUser!.email,
-      'username': userNameController.text,
+      'username': userNameController.text.trim(),
       'color': getRandomColor(),
       'contacts': [],
       'chat': [],
       'block': [],
-      'fcm':FcmToken
+      'fcm': FcmToken
     });
     final doc = await _firestore
         .collection('Users')

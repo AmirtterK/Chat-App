@@ -13,7 +13,7 @@ class AuthPage extends StatelessWidget {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     final doc = await firestore.collection('Users').doc(uid).get();
     if (doc.exists) {
-      userData = doc.data()!;
+      userData = doc.data();
       await FirebaseFirestore.instance
           .collection('Users')
           .doc(uid)

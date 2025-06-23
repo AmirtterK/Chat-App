@@ -9,6 +9,7 @@ Future<void> Block(String currentUserUid, String otherUserUid) async {
     'block': FieldValue.arrayUnion([otherUserUid])
   });
   await removeContact(currentUserUid, otherUserUid);
+  await removeContact(otherUserUid, currentUserUid);
   final doc = await FirebaseFirestore.instance
       .collection('Users')
       .doc(currentUserUid)
@@ -51,11 +52,6 @@ Future<void> removeContact(String currentUserUid, String otherUserUid) async {
       .update({
     'contacts': FieldValue.arrayRemove([otherUserUid])
   });
-  final doc = await FirebaseFirestore.instance
-      .collection('Users')
-      .doc(currentUserUid)
-      .get();
-  userData = doc.data()!;
 }
 
 Future<void> addChat(String currentUserUid, String otherUserUid) async {
@@ -65,11 +61,6 @@ Future<void> addChat(String currentUserUid, String otherUserUid) async {
   await userDoc.update({
     'chat': FieldValue.arrayUnion([otherUserUid])
   });
-  final doc = await FirebaseFirestore.instance
-      .collection('Users')
-      .doc(currentUserUid)
-      .get();
-  userData = doc.data()!;
 }
 
 Future<void> removeChat(String currentUserUid, String otherUserUid) async {
@@ -103,20 +94,21 @@ Future<bool> isContact(String currentUserUid, String otherUserUid) async {
 }
 
 Future<bool> isBlocked(String currentUserUid, String otherUserUid) async {
-  // final userDoc = await FirebaseFirestore.instance
-  //     .collection('Users')
-  //     .doc(currentUserUid)
-  //     .get();
+  
+  final userDoc = await FirebaseFirestore.instance
+      .collection('Users')
+      .doc(currentUserUid)
+      .get();
 
-  // final data = userDoc.data();
-  // if (data != null && data['block'] != null) {
-  //   List<dynamic> blocked = data['block'];
-  //   return blocked.contains(otherUserUid);
-  // }
+  final data = userDoc.data();
+  if (data != null && data['block'] != null) {
+    List<dynamic> blocked = data['block'];
+    return blocked.contains(otherUserUid);
+  }
 
-  // return false;
-  return (userData!['block'] as List).any((uid) => uid == otherUserUid);
+  return false;
 }
+
 Future<bool> BlockedBy(String currentUserUid, String otherUserUid) async {
   final userDoc = await FirebaseFirestore.instance
       .collection('Users')
