@@ -44,7 +44,7 @@ class _BuildUserslistState extends State<BuildUserslist> {
         }
         usersList = snapshot.data!
             .map<Widget>((userdata) => UserTile(
-                onDelete: currentRoute == 'Home'
+                onDelete: currentRoute == 'Home' && widget.query == null
                     ? () async {
                         await removeChat(user.uid, userdata['uid']);
                       }
