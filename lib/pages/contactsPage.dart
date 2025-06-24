@@ -19,12 +19,19 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: HomeDrawer(),
-      appBar: AppBar(
-        title: Text('Contacts'),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          currentRoute = 'Home';
+        }
+      },
+      child: Scaffold(
+        drawer: HomeDrawer(),
+        appBar: AppBar(
+          title: Text('Contacts'),
+        ),
+        body: BuildUserslist(),
       ),
-      body: BuildUserslist(),
     );
   }
 }

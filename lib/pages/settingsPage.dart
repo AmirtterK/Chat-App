@@ -53,48 +53,54 @@ class _SettingsPageState extends State<SettingsPage>
       switchStreamController.add(NotificationsAllowed);
     } else {
       await AppSettings.openAppSettings(type: AppSettingsType.notification);
-
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: HomeDrawer(),
-      appBar: AppBar(
-        title: Text('settings'),
-      ),
-      body: Column(
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16),
-            leading: Icon(Icons.block_flipped),
-            title: Text('Blocked'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  (userData!['block'] as List).length.toString(),
-                  style: TextStyle(fontSize: 14),
-                ),
-                SizedBox(width: 10),
-                Icon(Icons.arrow_forward_ios_rounded),
-              ],
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          currentRoute = 'Home';
+        }
+      },
+      child: Scaffold(
+        drawer: HomeDrawer(),
+        appBar: AppBar(
+          title: Text('settings'),
+        ),
+        body: Column(
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              leading: Icon(Icons.block_flipped),
+              title: Text('Blocked'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    (userData!['block'] as List).length.toString(),
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.arrow_forward_ios_rounded),
+                ],
+              ),
+              onTap: () => {context.pushNamed('Block'), setState(() {})},
             ),
-            onTap: () => {context.pushNamed('Block'), setState(() {})},
-          ),
-          StreamBuilder(
-              stream: switchStreamController.stream,
-              initialData: NotificationsAllowed,
-              builder: (context, asyncSnapshot) {
-                final isOn = asyncSnapshot.data ?? false;
-                return SwitchListTile(
-                  title: Text('Notifications'),
-                  value: isOn,
-                  onChanged: (value) => toggleSwitch(value),
-                );
-              })
-        ],
+            StreamBuilder(
+                stream: switchStreamController.stream,
+                initialData: NotificationsAllowed,
+                builder: (context, asyncSnapshot) {
+                  final isOn = asyncSnapshot.data ?? false;
+                  return SwitchListTile(
+                    title: Text('Notifications'),
+                    value: isOn,
+                    onChanged: (value) => toggleSwitch(value),
+                  );
+                })
+          ],
+        ),
       ),
     );
   }
