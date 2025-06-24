@@ -110,8 +110,6 @@ class _UsernamePageState extends State<UsernamePage> {
     if (mounted) {
       context.replaceNamed('Home');
     }
-
-    print('------------------->   saved');
   }
 
   Future<void> isUsernameAvailable(String username) async {

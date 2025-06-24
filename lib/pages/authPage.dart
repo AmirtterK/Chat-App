@@ -14,10 +14,9 @@ class AuthPage extends StatelessWidget {
     final doc = await firestore.collection('Users').doc(uid).get();
     if (doc.exists) {
       userData = doc.data();
-      await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(uid)
-          .set({'fcm': FcmToken}, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('Users').doc(uid).update({
+        'fcm': FcmToken,
+      });
 
       return true;
     }
@@ -30,7 +29,6 @@ class AuthPage extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LoginPage();
-
         final user = snapshot.data!;
         return FutureBuilder<bool>(
           future: _userExists(user.uid),

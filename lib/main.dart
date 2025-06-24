@@ -18,6 +18,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Firebaseapi().initNotifications();
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
@@ -39,18 +40,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Foreground notification handling
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Optional: show local notification or in-app snackbar
-      print("Received message in foreground: ${message.notification?.title}");
     });
 
-    // App opened from background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       _handleMessage(message);
     });
 
-    // App opened from terminated state
     _messaging.getInitialMessage().then((message) {
       if (message != null) {
         _handleMessage(message);
@@ -60,11 +56,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _handleMessage(RemoteMessage message) async {
     final data = message.data;
-    print(data);
     _router.pushNamed('Chat', extra: data);
-    // _router.pushNamed('Auth');
 
-    // Handle other pages...
   }
 
   @override

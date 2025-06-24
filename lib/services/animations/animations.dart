@@ -9,7 +9,6 @@ final Animatable<Offset> slideInTransition2 = Tween<Offset>(
   end: Offset.zero,
 ).chain(CurveTween(curve: Easing.legacy));
 
-final Animatable<double> fadeInTransition = CurveTween( 
+final Animatable<double> fadeInTransition = CurveTween(
   curve: Easing.legacyDecelerate,
 ).chain(CurveTween(curve: const Interval(0.3, 1.0)));
-  

@@ -4,8 +4,7 @@ class Blockbloc extends StatelessWidget {
   final String username;
   final Function()? onTap;
 
-  const Blockbloc(
-      {super.key,  required this.username, this.onTap});
+  const Blockbloc({super.key, required this.username, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,7 @@ class Blockbloc extends StatelessWidget {
             height: 20,
           ),
           Text(
-            onTap!=null
+            onTap != null
                 ? "You've blocked this account"
                 : "You've been blocked by this account",
             style: TextStyle(fontSize: 20),
@@ -39,7 +38,6 @@ class Blockbloc extends StatelessWidget {
                 onTap: onTap,
                 child: Container(
                   padding: EdgeInsets.all(20),
-                 
                   child: Center(
                     child: Text(
                       'Unblock',

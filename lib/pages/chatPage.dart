@@ -29,14 +29,12 @@ class _ChatPageState extends State<ChatPage> {
   final FocusNode _typeFocus = FocusNode();
   final ScrollController _scorllController = ScrollController();
   bool? userSentLast;
-  late Future<List<bool>> _statusFuture;
-  late List<bool> result;
-  String currentUID = FirebaseAuth.instance.currentUser!.uid;
-
+  String currentId = FirebaseAuth.instance.currentUser!.uid;
+  bool blocked = false;
+  bool blockedBy = false;
   @override
   void initState() {
     super.initState();
-    _statusFuture = loadStatus();
     _typeFocus.addListener(() {
       if (_typeFocus.hasFocus) {
         Future.delayed(
@@ -47,13 +45,6 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  Future<List<bool>> loadStatus() {
-    return Future.wait([
-      isBlocked(currentUID, widget.user['uid']),
-      BlockedBy(currentUID, widget.user['uid']),
-    ]);
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -62,8 +53,9 @@ class _ChatPageState extends State<ChatPage> {
 
   void scrollDown({bool animated = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scorllController.hasClients) return;
+      Chatservice().markAsSeen(currentId, widget.user['uid']);
 
+      if (!_scorllController.hasClients) return;
       final position = _scorllController.position.maxScrollExtent;
       if (animated) {
         _scorllController.animateTo(
@@ -90,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      titleSpacing: 0,
+        titleSpacing: 0,
         surfaceTintColor: const Color(0x00000000),
         title: Row(
           children: [
@@ -125,8 +117,8 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-      body: FutureBuilder(
-          future: _statusFuture,
+      body: StreamBuilder(
+          stream: getStatus(currentId, widget.user['uid']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SpinKitPulse(
@@ -141,24 +133,21 @@ class _ChatPageState extends State<ChatPage> {
                 child: Icon(Icons.error),
               );
             }
-            result = snapshot.data!;
-
+            blocked = snapshot.data![0];
+            blockedBy = snapshot.data![1];
             return Column(
               children: [
                 Expanded(
                   child: _buildMessageList(),
                 ),
-                if (result[0]) ...{
+                if (blocked) ...{
                   Blockbloc(
                     onTap: () async => {
-                      await Unblock(currentUID, widget.user['uid']),
-                      setState(() {
-                        _statusFuture = loadStatus();
-                      })
+                      await Unblock(currentId, widget.user['uid']),
                     },
                     username: widget.user['username'],
                   )
-                } else if (result[1]) ...{
+                } else if (blockedBy) ...{
                   Blockbloc(
                     username: widget.user['username'],
                   )
@@ -176,7 +165,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildMessageList() {
-    String senderId = currentUID;
+    String senderId = currentId;
     return StreamBuilder(
       stream: _chatservice.getMessage(widget.user['uid'], senderId),
       builder: (context, snapshot) {
@@ -361,9 +350,17 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> contactOptions(BuildContext contactContext) async {
     _typeFocus.unfocus();
-    bool blockedBy = await BlockedBy(currentUID, widget.user['uid']);
-    bool userIsContact = await isContact(currentUID, widget.user['uid']);
-    bool isUserBlocked = result[0];
+
+    final results = await Future.wait([
+      BlockedBy(currentId, widget.user['uid']),
+      isBlocked(currentId, widget.user['uid']),
+      isContact(currentId, widget.user['uid']),
+    ]);
+
+    bool blockedBy = results[0];
+    bool isUserBlocked = results[1];
+    bool userIsContact = results[2];
+
     if (mounted && context.mounted && !blockedBy) {
       showPopover(
         arrowWidth: 0,
@@ -388,9 +385,8 @@ class _ChatPageState extends State<ChatPage> {
                       {
                         Navigator.of(context).pop(),
                         userIsContact
-                            ? await removeContact(
-                                currentUID, widget.user['uid'])
-                            : await addContact(currentUID, widget.user['uid']),
+                            ? await removeContact(currentId, widget.user['uid'])
+                            : await addContact(currentId, widget.user['uid']),
                       }
                   },
                   child: Container(
@@ -416,11 +412,8 @@ class _ChatPageState extends State<ChatPage> {
                   onTap: () async => {
                     Navigator.of(context).pop(),
                     isUserBlocked
-                        ? await Unblock(currentUID, widget.user['uid'])
-                        : await Block(currentUID, widget.user['uid']),
-                    setState(() {
-                      _statusFuture = loadStatus();
-                    })
+                        ? await Unblock(currentId, widget.user['uid'])
+                        : await Block(currentId, widget.user['uid']),
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -498,15 +491,9 @@ class _ChatPageState extends State<ChatPage> {
     );
     if (dialogResult == true) {
       await Future.wait([
-        Unblock(currentUID, widget.user['uid']),
-        addContact(currentUID, widget.user['uid']),
+        Unblock(currentId, widget.user['uid']),
+        addContact(currentId, widget.user['uid']),
       ]);
-
-      if (mounted) {
-        setState(() {
-          _statusFuture = loadStatus();
-        });
-      }
     }
   }
 }

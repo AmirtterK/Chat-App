@@ -64,8 +64,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '497192567245',
     projectId: 'chat-app-14e27',
     storageBucket: 'chat-app-14e27.firebasestorage.app',
-    androidClientId: '497192567245-ubluck746l5mvveuv3k82c6tm34fma8n.apps.googleusercontent.com',
-    iosClientId: '497192567245-ct71geoasku1tkb2kp9o5mrtp3t8jf6r.apps.googleusercontent.com',
+    androidClientId:
+        '497192567245-ubluck746l5mvveuv3k82c6tm34fma8n.apps.googleusercontent.com',
+    iosClientId:
+        '497192567245-ct71geoasku1tkb2kp9o5mrtp3t8jf6r.apps.googleusercontent.com',
     iosBundleId: 'com.example.chatApp',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '497192567245',
     projectId: 'chat-app-14e27',
     storageBucket: 'chat-app-14e27.firebasestorage.app',
-    androidClientId: '497192567245-ubluck746l5mvveuv3k82c6tm34fma8n.apps.googleusercontent.com',
-    iosClientId: '497192567245-ct71geoasku1tkb2kp9o5mrtp3t8jf6r.apps.googleusercontent.com',
+    androidClientId:
+        '497192567245-ubluck746l5mvveuv3k82c6tm34fma8n.apps.googleusercontent.com',
+    iosClientId:
+        '497192567245-ct71geoasku1tkb2kp9o5mrtp3t8jf6r.apps.googleusercontent.com',
     iosBundleId: 'com.example.chatApp',
   );
 
@@ -89,5 +93,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'chat-app-14e27.firebasestorage.app',
     measurementId: 'G-FHQD75M8FC',
   );
-
 }

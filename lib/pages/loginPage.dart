@@ -35,13 +35,14 @@ class _LoginPageState extends State<LoginPage> {
             email: emailController.text, password: passwordController.text);
       } else {
         if (passwordController.text == confirmPasswordController.text) {
-          userCredential = await FirebaseAuth.instance 
+          userCredential = await FirebaseAuth.instance
               .createUserWithEmailAndPassword(
                   email: emailController.text,
                   password: passwordController.text);
         } else {
           setState(() {
             passwordNotMatched = true;
+            processingCredentials = false;
           });
         }
       }
@@ -55,7 +56,6 @@ class _LoginPageState extends State<LoginPage> {
         }
       });
 
-      print(e.code);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -76,7 +76,9 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder: (context) => Center(
         child: SpinKitPulse(
-            color: Theme.of(context).brightness==Brightness.light?Colors.black:Colors.white,
+          color: Theme.of(context).brightness == Brightness.light
+              ? Colors.black
+              : Colors.white,
         ),
       ),
     );
@@ -250,7 +252,10 @@ class _LoginPageState extends State<LoginPage> {
                         processingCredentials
                             ? Center(
                                 child: SpinKitPulse(
-            color: Theme.of(context).brightness==Brightness.light?Colors.black:Colors.white,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black
+                                      : Colors.white,
                                 ),
                               )
                             : SignInButton(
@@ -320,7 +325,7 @@ class _LoginPageState extends State<LoginPage> {
                           confirmPasswordController.clear();
                           forgotPassword = false;
                           showLogin = !showLogin;
-                          errorCode='';
+                          errorCode = '';
                         }),
                         child: Text(
                           showLogin ? 'Register now' : 'Login',

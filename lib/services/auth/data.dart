@@ -7,13 +7,14 @@ bool showLogin = true;
 bool passwordNotMatched = false;
 bool forgotPassword = false;
 bool resetEmailSent = false;
+bool NotificationsAllowed = false;
 String errorCode = '';
 Duration loadingTime = Duration(milliseconds: 1500);
 File? avatarImage;
 Map<String, dynamic>? userData;
 late UserCredential userCredential;
 String currentRoute = 'Home';
-late final String? FcmToken;
+String? FcmToken;
 String getRandomColor() {
   final random = Random();
   int r = random.nextInt(256);
@@ -30,8 +31,5 @@ Future<void> fetchUserData() async {
 
   if (userDoc.exists) {
     userData = userDoc.data() as Map<String, dynamic>;
-    print(userData);
   }
 }
-
-

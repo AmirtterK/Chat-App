@@ -54,7 +54,7 @@ class _BuildUserslistState extends State<BuildUserslist> {
                           }
                         : null,
                 user: userdata,
-                onTap: () => context.pushNamed('Chat',extra:userdata)))
+                onTap: () => context.pushNamed('Chat', extra: userdata)))
             .toList();
         return usersList.isNotEmpty
             ? ListView(children: usersList)

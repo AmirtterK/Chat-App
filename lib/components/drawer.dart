@@ -1,6 +1,8 @@
+import 'package:chat_app/components/inputField.dart';
 import 'package:chat_app/components/userAvatar.dart';
 import 'package:chat_app/services/auth/data.dart';
 import 'package:chat_app/services/theme/themeprovider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,8 +19,86 @@ class _HomeDrawerState extends State<HomeDrawer> {
   void signOut() {
     FirebaseAuth.instance.signOut();
     if (context.mounted) {
-      context.go('/Auth'); 
+      context.go('/Auth');
     }
+  }
+
+  Future<void> saveNewName(String newUsername) async {
+    await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(userData!['uid'])
+        .update({'username': newUsername});
+    userData!['username'] = newUsername;
+  }
+
+  Future<bool> changeName() async {
+    TextEditingController usernameController = TextEditingController();
+    bool isAvailable = true;
+    bool result = await showAdaptiveDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> isUsernameAvailable(String username) async {
+              final result = await FirebaseFirestore.instance
+                  .collection('Users')
+                  .where('username', isEqualTo: username.trim())
+                  .limit(1)
+                  .get();
+              setState(() {
+                isAvailable = result.docs.isEmpty && username.trim().isNotEmpty;
+              });
+            }
+
+            return Dialog(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    right: 20, left: 20, top: 40, bottom: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InputField(
+                      controller: usernameController,
+                      hintText: 'Username',
+                      obsecure: false,
+                      onChanged: (value) => isUsernameAvailable(value),
+                    ),
+                    SizedBox(height: 5),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: !isAvailable &&
+                              usernameController.text.trim().isNotEmpty
+                          ? Text(
+                              'That username already exists!',
+                              style: TextStyle(color: Colors.red, fontSize: 12),
+                            )
+                          : SizedBox.shrink(),
+                    ),
+                    SizedBox(height: 30),
+                    TextButton(
+                      onPressed: isAvailable &&
+                              usernameController.text.trim().isNotEmpty
+                          ? () async {
+                              await saveNewName(usernameController.text.trim());
+                              if (context.mounted) {
+                                Navigator.pop(context, true);
+                              }
+                            }
+                          : null,
+                      child: Text(
+                        'Save',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+    return result == true;
   }
 
   @override
@@ -77,8 +157,14 @@ class _HomeDrawerState extends State<HomeDrawer> {
                     Spacer(),
                     Align(
                       alignment: Alignment.topLeft,
-                      child: Text(
-                        userData!['username'],
+                      child: GestureDetector(
+                        onTap: () async {
+                          bool rebuild = await changeName();
+                          if (rebuild) setState(() {});
+                        },
+                        child: Text(
+                          userData!['username'],
+                        ),
                       ),
                     ),
                     Align(

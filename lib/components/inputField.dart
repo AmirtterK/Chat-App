@@ -5,13 +5,14 @@ class InputField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obsecure;
-    final Function(String)? onChanged;
+  final Function(String)? onChanged;
 
   const InputField({
     super.key,
     required this.controller,
     required this.hintText,
-    required this.obsecure, this.onChanged,
+    required this.obsecure,
+    this.onChanged,
   });
 
   @override

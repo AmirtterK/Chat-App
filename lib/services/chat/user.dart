@@ -1,5 +1,6 @@
 import 'package:chat_app/services/auth/data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rxdart/rxdart.dart';
 
 Future<void> Block(String currentUserUid, String otherUserUid) async {
   final userDoc =
@@ -78,19 +79,18 @@ Future<void> removeChat(String currentUserUid, String otherUserUid) async {
 }
 
 Future<bool> isContact(String currentUserUid, String otherUserUid) async {
-  // final userDoc = await FirebaseFirestore.instance
-  //     .collection('Users')
-  //     .doc(currentUserUid)
-  //     .get();
+  final userDoc = await FirebaseFirestore.instance
+      .collection('Users')
+      .doc(currentUserUid)
+      .get();
 
-  // final data = userDoc.data();
-  // if (data != null && data['contacts'] != null) {
-  //   List<dynamic> contacts = data['contacts'];
-  //   return contacts.contains(otherUserUid);
-  // }
+  final data = userDoc.data();
+  if (data != null && data['contacts'] != null) {
+    List<dynamic> contacts = data['contacts'];
+    return contacts.contains(otherUserUid);
+  }
 
-  // return false;
-  return (userData!['contacts'] as List).any((uid) => uid == otherUserUid);
+  return false;
 }
 
 Future<bool> isBlocked(String currentUserUid, String otherUserUid) async {
@@ -122,4 +122,21 @@ Future<bool> BlockedBy(String currentUserUid, String otherUserUid) async {
   }
 
   return false;
+}
+
+Stream<List<bool>> getStatus(String currentUserId,String otherUserId){
+final currentUserStream = FirebaseFirestore.instance.collection('Users').doc(currentUserId).snapshots();
+  final otherUserStream = FirebaseFirestore.instance.collection('Users').doc(otherUserId).snapshots();
+
+  return Rx.combineLatest2(currentUserStream, otherUserStream, (currentSnap, otherSnap) {
+    final currentData = currentSnap.data();
+    final otherData = otherSnap.data();
+
+    final blocked = (currentData?['block'] ?? []).contains(otherUserId);
+    final blockedBy = (otherData?['block'] ?? []).contains(currentUserId);
+
+    return [blocked, blockedBy];
+  });
+
+
 }

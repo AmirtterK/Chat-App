@@ -72,7 +72,8 @@ class Chatservice {
         senderEmail: currentUserEmail,
         recieverId: user['uid'],
         message: message,
-        timestamp: timestamp);
+        timestamp: timestamp,
+        seen: false);
     List<String> ids = [currentUserId, user['uid']];
     ids.sort();
     String chatRoomid = ids.join('_');
@@ -83,7 +84,7 @@ class Chatservice {
         .add(newMessage.toMap());
     await addChat(userData!['uid'], user['uid']);
     await addChat(user['uid'], userData!['uid']);
-    final response = await http.post(
+    await http.post(
       Uri.parse("https://chat-app-server-u8vj.onrender.com/send"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -91,19 +92,13 @@ class Chatservice {
         "title": user['username'],
         "body": message,
         "payload": {
-          "uid":userData!['uid'],
-          "username":userData!['username'],
-          "color":userData!['color'],
-          "fcm":userData!['fcm']
+          "uid": userData!['uid'],
+          "username": userData!['username'],
+          "color": userData!['color'],
+          "fcm": userData!['fcm']
         }
       }),
     );
-
-    if (response.statusCode == 200) {
-      print("✅ Notification sent!");
-    } else {
-      print("❌ Failed: ${response.body}");
-    }
   }
 
   Future<void> deleteMessage(String recieverId, Timestamp timestamp) async {
@@ -123,7 +118,7 @@ class Chatservice {
         await doc.reference.delete();
       }
     } catch (e) {
-      print('Error deleting message: $e');
+      e;
     }
   }
 
@@ -137,5 +132,57 @@ class Chatservice {
         .collection('messages')
         .orderBy('timestamp', descending: false)
         .snapshots();
+  }
+
+  Future<void> markAsSeen(String userId, String otherUserId) async {
+    List<String> ids = [userId, otherUserId];
+    ids.sort();
+    String chatRoomid = ids.join('_');
+    final messagesSnapshot = await _firestore
+        .collection('chat_rooms')
+        .doc(chatRoomid)
+        .collection('messages')
+        .where('senderId', isEqualTo: otherUserId)
+        .where('seen', isEqualTo: false)
+        .get();
+
+    WriteBatch batch = _firestore.batch();
+
+    for (var doc in messagesSnapshot.docs) {
+      batch.update(doc.reference, {'seen': true});
+    }
+
+    await batch.commit();
+  }
+
+  Stream<Map<String, dynamic>> getLastMessage(
+      String userId, String otherUserId) {
+    List<String> ids = [userId, otherUserId];
+    ids.sort();
+    String chatRoomid = ids.join('_');
+    return _firestore
+        .collection('chat_rooms')
+        .doc(chatRoomid)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.data();
+      } else {
+        return {};
+      }
+    });
+  }
+
+  String timeSinceSent(Timestamp timestamp) {
+    final DateTime messageTime = timestamp.toDate();
+    final diff = DateTime.now().difference(messageTime);
+    if (diff.inMinutes < 1) return ' \u00B7 just now';
+    if (diff.inMinutes < 60) return ' \u00B7 ${diff.inMinutes}m';
+    if (diff.inHours < 24) return ' \u00B7 ${diff.inHours}h';
+    if (diff.inDays < 7) return ' \u00B7 ${diff.inDays}d';
+    return ' \u00B7 ${(diff.inDays / 7).floor()}w';
   }
 }

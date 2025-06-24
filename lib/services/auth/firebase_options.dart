@@ -78,5 +78,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'chat-app-14e27.firebasestorage.app',
     iosBundleId: 'com.example.chatApp',
   );
-
 }

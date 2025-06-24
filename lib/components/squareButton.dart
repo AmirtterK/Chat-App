@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 class SquareButton extends StatelessWidget {
   final String path;
-    final Function()? onTap;
+  final Function()? onTap;
 
   const SquareButton({
     super.key,
-    required this.path, this.onTap,
+    required this.path,
+    this.onTap,
   });
 
   @override
@@ -17,10 +18,10 @@ class SquareButton extends StatelessWidget {
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
+            color: Theme.of(context).colorScheme.onSecondaryContainer,
           ),
           borderRadius: BorderRadius.circular(16),
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
         ),
         child: Center(
           child: Image.asset(
