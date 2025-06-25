@@ -1,5 +1,4 @@
 import 'package:chat_app/components/buildUsersList.dart';
-import 'package:chat_app/components/drawer.dart';
 import 'package:chat_app/services/auth/data.dart';
 import 'package:flutter/material.dart';
 

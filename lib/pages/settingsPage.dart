@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_settings/app_settings.dart';
-import 'package:chat_app/components/drawer.dart';
 import 'package:chat_app/services/auth/data.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
