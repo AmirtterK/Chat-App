@@ -25,7 +25,6 @@ class _ContactsPageState extends State<ContactsPage> {
         }
       },
       child: Scaffold(
-        drawer: HomeDrawer(),
         appBar: AppBar(
           title: Text('Contacts'),
         ),

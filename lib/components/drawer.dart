@@ -184,7 +184,6 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 child: ListTile(
                   onTap: () {
                     Navigator.pop(context);
-                    context.go('/Home');
                     currentRoute = 'Home';
                     print(currentRoute);
                   },
@@ -200,7 +199,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 child: ListTile(
                   onTap: () {
                    Navigator.pop(context);
-                    context.go('/Contacts');
+                    context.pushNamed('Contacts');
                     currentRoute = 'Contacts';
                     print(currentRoute);
 
@@ -217,7 +216,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 child: ListTile(
                   onTap: () {
                     Navigator.pop(context);
-                    context.go('/Settings');
+                    context.pushNamed('Settings');
                     currentRoute = 'Settings';
                     print(currentRoute);
 
