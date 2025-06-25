@@ -61,7 +61,6 @@ class _SettingsPageState extends State<SettingsPage>
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
-          currentRoute = 'Home';
         }
       },
       child: Scaffold(

@@ -14,7 +14,6 @@ class _ContactsPageState extends State<ContactsPage> {
   @override
   void initState() {
     super.initState();
-    currentRoute = 'Contacts';
   }
 
   @override

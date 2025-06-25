@@ -71,11 +71,11 @@ class _MyAppState extends State<MyApp> {
 }
 
 final _router = GoRouter(
-  initialLocation: '/Auth',
+  initialLocation: '/',
   routes: <RouteBase>[
     GoRoute(
       name: 'Auth',
-      path: '/Auth',
+      path: '/',
       builder: (context, state) => const AuthPage(),
     ),
     GoRoute(

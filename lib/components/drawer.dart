@@ -184,18 +184,9 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 child: ListTile(
                   onTap: () {
                     Navigator.pop(context);
-                    switch (currentRoute) {
-                      case 'Home':
-                        break;
-                      case 'Contacts':
-                        context.pop();
-                        break;
-                      case 'Settings':
-                        context.pop();
-                        break;
-                      default:
-                    }
+                    context.go('/Home');
                     currentRoute = 'Home';
+                    print(currentRoute);
                   },
                   leading: Icon(Icons.home),
                   title: Text(
@@ -208,19 +199,11 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: ListTile(
                   onTap: () {
-                    Navigator.pop(context);
-                    switch (currentRoute) {
-                      case 'Contacts':
-                        break;
-                      case 'Home':
-                        context.pushNamed('Contacts');
-                        break;
-                      case 'Settings':
-                        context.pushReplacementNamed('Contacts');
-                        break;
-                      default:
-                    }
+                   Navigator.pop(context);
+                    context.go('/Contacts');
                     currentRoute = 'Contacts';
+                    print(currentRoute);
+
                   },
                   leading: Icon(Icons.person),
                   title: Text(
@@ -234,19 +217,10 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 child: ListTile(
                   onTap: () {
                     Navigator.pop(context);
-                    switch (currentRoute) {
-                      case 'Settings':
-                        break;
-                      case 'Home':
-                        context.pushNamed('Settings');
-                        break;
-                      case 'Contacts':
-                        context.pushReplacementNamed('Settings');
-
-                        break;
-                      default:
-                    }
+                    context.go('/Settings');
                     currentRoute = 'Settings';
+                    print(currentRoute);
+
                   },
                   leading: Icon(Icons.settings),
                   title: Text(
