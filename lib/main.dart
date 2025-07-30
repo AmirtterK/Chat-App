@@ -19,7 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top], // Show only the status bar
+    overlays: [SystemUiOverlay.top],
   );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Firebaseapi().initNotifications();
