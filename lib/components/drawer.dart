@@ -18,9 +18,7 @@ class HomeDrawer extends StatefulWidget {
 class _HomeDrawerState extends State<HomeDrawer> {
   void signOut() {
     FirebaseAuth.instance.signOut();
-    if (context.mounted) {
-      context.go('/Auth');
-    }
+    
   }
 
   Future<void> saveNewName(String newUsername) async {

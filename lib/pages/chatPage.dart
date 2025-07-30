@@ -135,30 +135,34 @@ class _ChatPageState extends State<ChatPage> {
             }
             blocked = snapshot.data![0];
             blockedBy = snapshot.data![1];
-            return Column(
-              children: [
-                Expanded(
-                  child: _buildMessageList(),
-                ),
-                if (blocked) ...{
-                  Blockbloc(
-                    onTap: () async => {
-                      await Unblock(currentId, widget.user['uid']),
-                    },
-                    username: widget.user['username'],
-                  )
-                } else if (blockedBy) ...{
-                  Blockbloc(
-                    username: widget.user['username'],
-                  )
-                } else ...{
-                  Builduserinput(
-                    messageController: _message_controller,
-                    typeFocus: _typeFocus,
-                    sendMessage: sendMessage,
-                  )
-                }
-              ],
+            return Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: _buildMessageList(),
+                  ),
+                  if (blocked) ...{
+                    Blockbloc(
+                      onTap: () async => {
+                        await Unblock(currentId, widget.user['uid']),
+                      },
+                      username: widget.user['username'],
+                    )
+                  } else if (blockedBy) ...{
+                    Blockbloc(
+                      username: widget.user['username'],
+                    )
+                  } else ...{
+                    Builduserinput(
+                      messageController: _message_controller,
+                      typeFocus: _typeFocus,
+                      sendMessage: sendMessage,
+                    )
+                  }
+                ],
+              ),
             );
           }),
     );

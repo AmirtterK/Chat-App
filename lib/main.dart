@@ -10,12 +10,17 @@ import 'package:chat_app/services/theme/themeprovider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'services/auth/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top], // Show only the status bar
+  );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Firebaseapi().initNotifications();
 
@@ -40,8 +45,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       _handleMessage(message);
@@ -57,7 +62,6 @@ class _MyAppState extends State<MyApp> {
   Future<void> _handleMessage(RemoteMessage message) async {
     final data = message.data;
     _router.pushNamed('Chat', extra: data);
-
   }
 
   @override

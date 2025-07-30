@@ -58,7 +58,11 @@ class _BuildUserslistState extends State<BuildUserslist> {
                 onTap: () => context.pushNamed('Chat', extra: userdata)))
             .toList();
         return usersList.isNotEmpty
-            ? ListView(children: usersList)
+            ? Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom),
+                child: ListView(children: usersList),
+              )
             : Center(
                 child: Icon(Icons.bubble_chart),
               );
